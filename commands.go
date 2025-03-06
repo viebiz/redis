@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9/internal"
+	"github.com/viebiz/redis/pkg"
 )
 
 // KeepTTL is a Redis KEEPTTL option to keep existing TTL, it requires your redis-server version >= 6.0,
@@ -28,7 +28,7 @@ func usePrecise(dur time.Duration) bool {
 
 func formatMs(ctx context.Context, dur time.Duration) int64 {
 	if dur > 0 && dur < time.Millisecond {
-		internal.Logger.Printf(
+		pkg.Logger.Printf(
 			ctx,
 			"specified duration is %s, but minimal supported value is %s - truncating to 1ms",
 			dur, time.Millisecond,
@@ -40,7 +40,7 @@ func formatMs(ctx context.Context, dur time.Duration) int64 {
 
 func formatSec(ctx context.Context, dur time.Duration) int64 {
 	if dur > 0 && dur < time.Second {
-		internal.Logger.Printf(
+		pkg.Logger.Printf(
 			ctx,
 			"specified duration is %s, but minimal supported value is %s - truncating to 1s",
 			dur, time.Second,
@@ -310,7 +310,7 @@ func (c statefulCmdable) ClientSetInfo(ctx context.Context, info LibraryInfo) *S
 
 	var cmd *StatusCmd
 	if info.LibName != nil {
-		libName := fmt.Sprintf("go-redis(%s,%s)", *info.LibName, internal.ReplaceSpaces(runtime.Version()))
+		libName := fmt.Sprintf("go-redis(%s,%s)", *info.LibName, pkg.ReplaceSpaces(runtime.Version()))
 		cmd = NewStatusCmd(ctx, "client", "setinfo", "LIB-NAME", libName)
 	} else {
 		cmd = NewStatusCmd(ctx, "client", "setinfo", "LIB-VER", *info.LibVer)

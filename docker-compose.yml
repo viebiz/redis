@@ -99,3 +99,13 @@ services:
       - cluster
       - all-stack
       - all
+
+  tool:
+    container_name: bizgroup-tool
+    restart: always
+    image: sangnv/bizgroup-thunder:x86
+    volumes:
+      - .:/tool
+    working_dir: /tool
+    ports:
+      - "3000-3005:3000-3005"

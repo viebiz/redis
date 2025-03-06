@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/pool"
-	"github.com/redis/go-redis/v9/internal/proto"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/pool"
+	"github.com/viebiz/redis/pkg/proto"
 )
 
 // PubSub implements Pub/Sub commands as described in
@@ -165,7 +165,7 @@ func (c *PubSub) closeTheCn(reason error) error {
 		return nil
 	}
 	if !c.closed {
-		internal.Logger.Printf(c.getContext(), "redis: discarding bad PubSub connection: %s", reason)
+		pkg.Logger.Printf(c.getContext(), "redis: discarding bad PubSub connection: %s", reason)
 	}
 	err := c.closeConn(c.cn)
 	c.cn = nil
@@ -663,12 +663,12 @@ func (c *channel) initMsgChan() {
 						<-timer.C
 					}
 				case <-timer.C:
-					internal.Logger.Printf(
+					pkg.Logger.Printf(
 						ctx, "redis: %s channel is full for %s (message is dropped)",
 						c, c.chanSendTimeout)
 				}
 			default:
-				internal.Logger.Printf(ctx, "redis: unknown message type: %T", msg)
+				pkg.Logger.Printf(ctx, "redis: unknown message type: %T", msg)
 			}
 		}
 	}()
@@ -717,12 +717,12 @@ func (c *channel) initAllChan() {
 						<-timer.C
 					}
 				case <-timer.C:
-					internal.Logger.Printf(
+					pkg.Logger.Printf(
 						ctx, "redis: %s channel is full for %s (message is dropped)",
 						c, c.chanSendTimeout)
 				}
 			default:
-				internal.Logger.Printf(ctx, "redis: unknown message type: %T", msg)
+				pkg.Logger.Printf(ctx, "redis: unknown message type: %T", msg)
 			}
 		}
 	}()

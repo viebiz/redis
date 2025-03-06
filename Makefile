@@ -15,12 +15,10 @@ test.ci:
 	set -e; for dir in $(GO_MOD_DIRS); do \
 	  echo "go test in $${dir}"; \
 	  (cd "$${dir}" && \
-	    go mod tidy -compat=1.18 && \
+	    go mod tidy && \
 	    go vet && \
-	    go test -coverprofile=coverage.txt -covermode=atomic ./... -race); \
+	    set CGO_ENABLED=1 go test -coverprofile=coverage.txt -covermode=atomic ./... -race); \
 	done
-	cd internal/customvet && go build .
-	go vet -vettool ./internal/customvet/customvet
 
 bench:
 	go test ./... -test.run=NONE -test.bench=. -test.benchmem
@@ -39,5 +37,16 @@ go_mod_tidy:
 	  echo "go mod tidy in $${dir}"; \
 	  (cd "$${dir}" && \
 	    go get -u ./... && \
-	    go mod tidy -compat=1.18); \
+	    go mod tidy); \
 	done
+
+ENV:=dev
+GROUP_NAME:=viebiz
+PROJECT_NAME:=redis
+
+DOCKER_BUILD_BIN := docker
+COMPOSE_BIN := ENV=$(ENV) GROUP_NAME=$(GROUP_NAME) PROJECT_NAME=$(PROJECT_NAME) docker compose
+COMPOSE_TOOL_RUN := $(COMPOSE_BIN) run --rm --service-ports tool
+
+gen-mocks:
+	@$(COMPOSE_TOOL_RUN) sh -c "mockery"

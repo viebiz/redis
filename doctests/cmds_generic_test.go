@@ -8,7 +8,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/viebiz/redis"
 )
 
 // HIDE_END

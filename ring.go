@@ -14,10 +14,10 @@ import (
 	"github.com/cespare/xxhash/v2"
 	"github.com/dgryski/go-rendezvous" //nolint
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/hashtag"
-	"github.com/redis/go-redis/v9/internal/pool"
-	"github.com/redis/go-redis/v9/internal/rand"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/hashtag"
+	"github.com/viebiz/redis/pkg/pool"
+	"github.com/viebiz/redis/pkg/rand"
 )
 
 var errRingShardsDown = errors.New("redis: all ring shards are down")
@@ -273,7 +273,7 @@ func (c *ringSharding) SetAddrs(addrs map[string]string) {
 	cleanup := func(shards map[string]*ringShard) {
 		for addr, shard := range shards {
 			if err := shard.Client.Close(); err != nil {
-				internal.Logger.Printf(context.Background(), "shard.Close %s failed: %s", addr, err)
+				pkg.Logger.Printf(context.Background(), "shard.Close %s failed: %s", addr, err)
 			}
 		}
 	}
@@ -414,7 +414,7 @@ func (c *ringSharding) Heartbeat(ctx context.Context, frequency time.Duration) {
 				err := shard.Client.Ping(ctx).Err()
 				isUp := err == nil || err == pool.ErrPoolTimeout
 				if shard.Vote(isUp) {
-					internal.Logger.Printf(ctx, "ring shard state changed: %s", shard)
+					pkg.Logger.Printf(ctx, "ring shard state changed: %s", shard)
 					rebalance = true
 				}
 			}
@@ -561,7 +561,7 @@ func (c *Ring) Options() *RingOptions {
 }
 
 func (c *Ring) retryBackoff(attempt int) time.Duration {
-	return internal.RetryBackoff(attempt, c.opt.MinRetryBackoff, c.opt.MaxRetryBackoff)
+	return pkg.RetryBackoff(attempt, c.opt.MinRetryBackoff, c.opt.MaxRetryBackoff)
 }
 
 // PoolStats returns accumulated connection pool stats.
@@ -696,7 +696,7 @@ func (c *Ring) process(ctx context.Context, cmd Cmder) error {
 	var lastErr error
 	for attempt := 0; attempt <= c.opt.MaxRetries; attempt++ {
 		if attempt > 0 {
-			if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+			if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 				return err
 			}
 		}

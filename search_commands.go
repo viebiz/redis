@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/proto"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/proto"
 )
 
 type SearchCmdable interface {
@@ -1191,9 +1191,9 @@ func parseFTInfo(data map[string]interface{}) (FTInfoResult, error) {
 	// Manually parse each field from the map
 	if indexErrors, ok := data["Index Errors"].([]interface{}); ok {
 		ftInfo.IndexErrors = IndexErrors{
-			IndexingFailures:     internal.ToInteger(indexErrors[1]),
-			LastIndexingError:    internal.ToString(indexErrors[3]),
-			LastIndexingErrorKey: internal.ToString(indexErrors[5]),
+			IndexingFailures:     pkg.ToInteger(indexErrors[1]),
+			LastIndexingError:    pkg.ToString(indexErrors[3]),
+			LastIndexingErrorKey: pkg.ToString(indexErrors[5]),
 		}
 	}
 
@@ -1202,47 +1202,47 @@ func parseFTInfo(data map[string]interface{}) (FTInfoResult, error) {
 			if attrMap, ok := attr.([]interface{}); ok {
 				att := FTAttribute{}
 				for i := 0; i < len(attrMap); i++ {
-					if internal.ToLower(internal.ToString(attrMap[i])) == "attribute" {
-						att.Attribute = internal.ToString(attrMap[i+1])
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "attribute" {
+						att.Attribute = pkg.ToString(attrMap[i+1])
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "identifier" {
-						att.Identifier = internal.ToString(attrMap[i+1])
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "identifier" {
+						att.Identifier = pkg.ToString(attrMap[i+1])
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "type" {
-						att.Type = internal.ToString(attrMap[i+1])
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "type" {
+						att.Type = pkg.ToString(attrMap[i+1])
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "weight" {
-						att.Weight = internal.ToFloat(attrMap[i+1])
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "weight" {
+						att.Weight = pkg.ToFloat(attrMap[i+1])
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "nostem" {
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "nostem" {
 						att.NoStem = true
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "sortable" {
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "sortable" {
 						att.Sortable = true
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "noindex" {
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "noindex" {
 						att.NoIndex = true
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "unf" {
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "unf" {
 						att.UNF = true
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "phonetic" {
-						att.PhoneticMatcher = internal.ToString(attrMap[i+1])
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "phonetic" {
+						att.PhoneticMatcher = pkg.ToString(attrMap[i+1])
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "case_sensitive" {
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "case_sensitive" {
 						att.CaseSensitive = true
 						continue
 					}
-					if internal.ToLower(internal.ToString(attrMap[i])) == "withsuffixtrie" {
+					if pkg.ToLower(pkg.ToString(attrMap[i])) == "withsuffixtrie" {
 						att.WithSuffixtrie = true
 						continue
 					}
@@ -1253,37 +1253,37 @@ func parseFTInfo(data map[string]interface{}) (FTInfoResult, error) {
 		}
 	}
 
-	ftInfo.BytesPerRecordAvg = internal.ToString(data["bytes_per_record_avg"])
-	ftInfo.Cleaning = internal.ToInteger(data["cleaning"])
+	ftInfo.BytesPerRecordAvg = pkg.ToString(data["bytes_per_record_avg"])
+	ftInfo.Cleaning = pkg.ToInteger(data["cleaning"])
 
 	if cursorStats, ok := data["cursor_stats"].([]interface{}); ok {
 		ftInfo.CursorStats = CursorStats{
-			GlobalIdle:    internal.ToInteger(cursorStats[1]),
-			GlobalTotal:   internal.ToInteger(cursorStats[3]),
-			IndexCapacity: internal.ToInteger(cursorStats[5]),
-			IndexTotal:    internal.ToInteger(cursorStats[7]),
+			GlobalIdle:    pkg.ToInteger(cursorStats[1]),
+			GlobalTotal:   pkg.ToInteger(cursorStats[3]),
+			IndexCapacity: pkg.ToInteger(cursorStats[5]),
+			IndexTotal:    pkg.ToInteger(cursorStats[7]),
 		}
 	}
 
 	if dialectStats, ok := data["dialect_stats"].([]interface{}); ok {
 		ftInfo.DialectStats = make(map[string]int)
 		for i := 0; i < len(dialectStats); i += 2 {
-			ftInfo.DialectStats[internal.ToString(dialectStats[i])] = internal.ToInteger(dialectStats[i+1])
+			ftInfo.DialectStats[pkg.ToString(dialectStats[i])] = pkg.ToInteger(dialectStats[i+1])
 		}
 	}
 
-	ftInfo.DocTableSizeMB = internal.ToFloat(data["doc_table_size_mb"])
+	ftInfo.DocTableSizeMB = pkg.ToFloat(data["doc_table_size_mb"])
 
 	if fieldStats, ok := data["field statistics"].([]interface{}); ok {
 		for _, stat := range fieldStats {
 			if statMap, ok := stat.([]interface{}); ok {
 				ftInfo.FieldStatistics = append(ftInfo.FieldStatistics, FieldStatistic{
-					Identifier: internal.ToString(statMap[1]),
-					Attribute:  internal.ToString(statMap[3]),
+					Identifier: pkg.ToString(statMap[1]),
+					Attribute:  pkg.ToString(statMap[3]),
 					IndexErrors: IndexErrors{
-						IndexingFailures:     internal.ToInteger(statMap[5].([]interface{})[1]),
-						LastIndexingError:    internal.ToString(statMap[5].([]interface{})[3]),
-						LastIndexingErrorKey: internal.ToString(statMap[5].([]interface{})[5]),
+						IndexingFailures:     pkg.ToInteger(statMap[5].([]interface{})[1]),
+						LastIndexingError:    pkg.ToString(statMap[5].([]interface{})[3]),
+						LastIndexingErrorKey: pkg.ToString(statMap[5].([]interface{})[5]),
 					},
 				})
 			}
@@ -1293,70 +1293,70 @@ func parseFTInfo(data map[string]interface{}) (FTInfoResult, error) {
 	if gcStats, ok := data["gc_stats"].([]interface{}); ok {
 		ftInfo.GCStats = GCStats{}
 		for i := 0; i < len(gcStats); i += 2 {
-			if internal.ToLower(internal.ToString(gcStats[i])) == "bytes_collected" {
-				ftInfo.GCStats.BytesCollected = internal.ToInteger(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "bytes_collected" {
+				ftInfo.GCStats.BytesCollected = pkg.ToInteger(gcStats[i+1])
 				continue
 			}
-			if internal.ToLower(internal.ToString(gcStats[i])) == "total_ms_run" {
-				ftInfo.GCStats.TotalMsRun = internal.ToInteger(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "total_ms_run" {
+				ftInfo.GCStats.TotalMsRun = pkg.ToInteger(gcStats[i+1])
 				continue
 			}
-			if internal.ToLower(internal.ToString(gcStats[i])) == "total_cycles" {
-				ftInfo.GCStats.TotalCycles = internal.ToInteger(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "total_cycles" {
+				ftInfo.GCStats.TotalCycles = pkg.ToInteger(gcStats[i+1])
 				continue
 			}
-			if internal.ToLower(internal.ToString(gcStats[i])) == "average_cycle_time_ms" {
-				ftInfo.GCStats.AverageCycleTimeMs = internal.ToString(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "average_cycle_time_ms" {
+				ftInfo.GCStats.AverageCycleTimeMs = pkg.ToString(gcStats[i+1])
 				continue
 			}
-			if internal.ToLower(internal.ToString(gcStats[i])) == "last_run_time_ms" {
-				ftInfo.GCStats.LastRunTimeMs = internal.ToInteger(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "last_run_time_ms" {
+				ftInfo.GCStats.LastRunTimeMs = pkg.ToInteger(gcStats[i+1])
 				continue
 			}
-			if internal.ToLower(internal.ToString(gcStats[i])) == "gc_numeric_trees_missed" {
-				ftInfo.GCStats.GCNumericTreesMissed = internal.ToInteger(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "gc_numeric_trees_missed" {
+				ftInfo.GCStats.GCNumericTreesMissed = pkg.ToInteger(gcStats[i+1])
 				continue
 			}
-			if internal.ToLower(internal.ToString(gcStats[i])) == "gc_blocks_denied" {
-				ftInfo.GCStats.GCBlocksDenied = internal.ToInteger(gcStats[i+1])
+			if pkg.ToLower(pkg.ToString(gcStats[i])) == "gc_blocks_denied" {
+				ftInfo.GCStats.GCBlocksDenied = pkg.ToInteger(gcStats[i+1])
 				continue
 			}
 		}
 	}
 
-	ftInfo.GeoshapesSzMB = internal.ToFloat(data["geoshapes_sz_mb"])
-	ftInfo.HashIndexingFailures = internal.ToInteger(data["hash_indexing_failures"])
+	ftInfo.GeoshapesSzMB = pkg.ToFloat(data["geoshapes_sz_mb"])
+	ftInfo.HashIndexingFailures = pkg.ToInteger(data["hash_indexing_failures"])
 
 	if indexDef, ok := data["index_definition"].([]interface{}); ok {
 		ftInfo.IndexDefinition = IndexDefinition{
-			KeyType:      internal.ToString(indexDef[1]),
-			Prefixes:     internal.ToStringSlice(indexDef[3]),
-			DefaultScore: internal.ToFloat(indexDef[5]),
+			KeyType:      pkg.ToString(indexDef[1]),
+			Prefixes:     pkg.ToStringSlice(indexDef[3]),
+			DefaultScore: pkg.ToFloat(indexDef[5]),
 		}
 	}
 
-	ftInfo.IndexName = internal.ToString(data["index_name"])
-	ftInfo.IndexOptions = internal.ToStringSlice(data["index_options"].([]interface{}))
-	ftInfo.Indexing = internal.ToInteger(data["indexing"])
-	ftInfo.InvertedSzMB = internal.ToFloat(data["inverted_sz_mb"])
-	ftInfo.KeyTableSizeMB = internal.ToFloat(data["key_table_size_mb"])
-	ftInfo.MaxDocID = internal.ToInteger(data["max_doc_id"])
-	ftInfo.NumDocs = internal.ToInteger(data["num_docs"])
-	ftInfo.NumRecords = internal.ToInteger(data["num_records"])
-	ftInfo.NumTerms = internal.ToInteger(data["num_terms"])
-	ftInfo.NumberOfUses = internal.ToInteger(data["number_of_uses"])
-	ftInfo.OffsetBitsPerRecordAvg = internal.ToString(data["offset_bits_per_record_avg"])
-	ftInfo.OffsetVectorsSzMB = internal.ToFloat(data["offset_vectors_sz_mb"])
-	ftInfo.OffsetsPerTermAvg = internal.ToString(data["offsets_per_term_avg"])
-	ftInfo.PercentIndexed = internal.ToFloat(data["percent_indexed"])
-	ftInfo.RecordsPerDocAvg = internal.ToString(data["records_per_doc_avg"])
-	ftInfo.SortableValuesSizeMB = internal.ToFloat(data["sortable_values_size_mb"])
-	ftInfo.TagOverheadSzMB = internal.ToFloat(data["tag_overhead_sz_mb"])
-	ftInfo.TextOverheadSzMB = internal.ToFloat(data["text_overhead_sz_mb"])
-	ftInfo.TotalIndexMemorySzMB = internal.ToFloat(data["total_index_memory_sz_mb"])
-	ftInfo.TotalIndexingTime = internal.ToInteger(data["total_indexing_time"])
-	ftInfo.TotalInvertedIndexBlocks = internal.ToInteger(data["total_inverted_index_blocks"])
-	ftInfo.VectorIndexSzMB = internal.ToFloat(data["vector_index_sz_mb"])
+	ftInfo.IndexName = pkg.ToString(data["index_name"])
+	ftInfo.IndexOptions = pkg.ToStringSlice(data["index_options"].([]interface{}))
+	ftInfo.Indexing = pkg.ToInteger(data["indexing"])
+	ftInfo.InvertedSzMB = pkg.ToFloat(data["inverted_sz_mb"])
+	ftInfo.KeyTableSizeMB = pkg.ToFloat(data["key_table_size_mb"])
+	ftInfo.MaxDocID = pkg.ToInteger(data["max_doc_id"])
+	ftInfo.NumDocs = pkg.ToInteger(data["num_docs"])
+	ftInfo.NumRecords = pkg.ToInteger(data["num_records"])
+	ftInfo.NumTerms = pkg.ToInteger(data["num_terms"])
+	ftInfo.NumberOfUses = pkg.ToInteger(data["number_of_uses"])
+	ftInfo.OffsetBitsPerRecordAvg = pkg.ToString(data["offset_bits_per_record_avg"])
+	ftInfo.OffsetVectorsSzMB = pkg.ToFloat(data["offset_vectors_sz_mb"])
+	ftInfo.OffsetsPerTermAvg = pkg.ToString(data["offsets_per_term_avg"])
+	ftInfo.PercentIndexed = pkg.ToFloat(data["percent_indexed"])
+	ftInfo.RecordsPerDocAvg = pkg.ToString(data["records_per_doc_avg"])
+	ftInfo.SortableValuesSizeMB = pkg.ToFloat(data["sortable_values_size_mb"])
+	ftInfo.TagOverheadSzMB = pkg.ToFloat(data["tag_overhead_sz_mb"])
+	ftInfo.TextOverheadSzMB = pkg.ToFloat(data["text_overhead_sz_mb"])
+	ftInfo.TotalIndexMemorySzMB = pkg.ToFloat(data["total_index_memory_sz_mb"])
+	ftInfo.TotalIndexingTime = pkg.ToInteger(data["total_indexing_time"])
+	ftInfo.TotalInvertedIndexBlocks = pkg.ToInteger(data["total_inverted_index_blocks"])
+	ftInfo.VectorIndexSzMB = pkg.ToFloat(data["vector_index_sz_mb"])
 
 	return ftInfo, nil
 }

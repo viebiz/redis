@@ -7,9 +7,9 @@ import (
 	"net"
 	"strings"
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/pool"
-	"github.com/redis/go-redis/v9/internal/proto"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/pool"
+	"github.com/viebiz/redis/pkg/proto"
 )
 
 // ErrClosed performs any operation on the closed client will return this error.
@@ -141,7 +141,7 @@ func isMovedError(err error) (moved bool, ask bool, addr string) {
 	}
 
 	addr = s[ind+1:]
-	addr = internal.GetAddr(addr)
+	addr = pkg.GetAddr(addr)
 	return
 }
 

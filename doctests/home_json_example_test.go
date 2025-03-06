@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/viebiz/redis"
 )
 
 // STEP_END

@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/hscan"
-	"github.com/redis/go-redis/v9/internal/proto"
-	"github.com/redis/go-redis/v9/internal/util"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/hscan"
+	"github.com/viebiz/redis/pkg/proto"
+	"github.com/viebiz/redis/pkg/util"
 )
 
 type Cmder interface {
@@ -105,7 +105,7 @@ func cmdString(cmd Cmder, val interface{}) string {
 		if i > 0 {
 			b = append(b, ' ')
 		}
-		b = internal.AppendArg(b, arg)
+		b = pkg.AppendArg(b, arg)
 	}
 
 	if err := cmd.Err(); err != nil {
@@ -113,7 +113,7 @@ func cmdString(cmd Cmder, val interface{}) string {
 		b = append(b, err.Error()...)
 	} else if val != nil {
 		b = append(b, ": "...)
-		b = internal.AppendArg(b, val)
+		b = pkg.AppendArg(b, val)
 	}
 
 	return util.BytesToString(b)
@@ -137,7 +137,7 @@ func (cmd *baseCmd) Name() string {
 		return ""
 	}
 	// Cmd name must be lower cased.
-	return internal.ToLower(cmd.stringArg(0))
+	return pkg.ToLower(cmd.stringArg(0))
 }
 
 func (cmd *baseCmd) FullName() string {
@@ -3561,7 +3561,7 @@ func (cmd *CommandsInfoCmd) readReply(rd *proto.Reader) error {
 type cmdsInfoCache struct {
 	fn func(ctx context.Context) (map[string]*CommandInfo, error)
 
-	once internal.Once
+	once pkg.Once
 	cmds map[string]*CommandInfo
 }
 
@@ -3580,7 +3580,7 @@ func (c *cmdsInfoCache) Get(ctx context.Context) (map[string]*CommandInfo, error
 
 		// Extensions have cmd names in upper case. Convert them to lower case.
 		for k, v := range cmds {
-			lower := internal.ToLower(k)
+			lower := pkg.ToLower(k)
 			if lower != k {
 				cmds[lower] = v
 			}

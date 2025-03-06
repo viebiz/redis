@@ -9,10 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/hscan"
-	"github.com/redis/go-redis/v9/internal/pool"
-	"github.com/redis/go-redis/v9/internal/proto"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/hscan"
+	"github.com/viebiz/redis/pkg/pool"
+	"github.com/viebiz/redis/pkg/proto"
 )
 
 // Scanner internal/hscan.Scanner exposed interface.
@@ -22,8 +22,8 @@ type Scanner = hscan.Scanner
 const Nil = proto.Nil
 
 // SetLogger set custom log
-func SetLogger(logger internal.Logging) {
-	internal.Logger = logger
+func SetLogger(logger pkg.Logging) {
+	pkg.Logger = logger
 }
 
 //------------------------------------------------------------------------------
@@ -432,7 +432,7 @@ func (c *baseClient) assertUnstableCommand(cmd Cmder) bool {
 
 func (c *baseClient) _process(ctx context.Context, cmd Cmder, attempt int) (bool, error) {
 	if attempt > 0 {
-		if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+		if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 			return false, err
 		}
 	}
@@ -469,7 +469,7 @@ func (c *baseClient) _process(ctx context.Context, cmd Cmder, attempt int) (bool
 }
 
 func (c *baseClient) retryBackoff(attempt int) time.Duration {
-	return internal.RetryBackoff(attempt, c.opt.MinRetryBackoff, c.opt.MaxRetryBackoff)
+	return pkg.RetryBackoff(attempt, c.opt.MinRetryBackoff, c.opt.MaxRetryBackoff)
 }
 
 func (c *baseClient) cmdTimeout(cmd Cmder) time.Duration {
@@ -526,7 +526,7 @@ func (c *baseClient) generalProcessPipeline(
 	var lastErr error
 	for attempt := 0; attempt <= c.opt.MaxRetries; attempt++ {
 		if attempt > 0 {
-			if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+			if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 				setCmdsErr(cmds, err)
 				return err
 			}

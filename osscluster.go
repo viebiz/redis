@@ -14,11 +14,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/redis/go-redis/v9/internal"
-	"github.com/redis/go-redis/v9/internal/hashtag"
-	"github.com/redis/go-redis/v9/internal/pool"
-	"github.com/redis/go-redis/v9/internal/proto"
-	"github.com/redis/go-redis/v9/internal/rand"
+	"github.com/viebiz/redis/pkg"
+	"github.com/viebiz/redis/pkg/hashtag"
+	"github.com/viebiz/redis/pkg/pool"
+	"github.com/viebiz/redis/pkg/proto"
+	"github.com/viebiz/redis/pkg/rand"
 )
 
 const (
@@ -794,12 +794,12 @@ func (c *clusterState) slotClosestNode(slot int) (*clusterNode, error) {
 
 	// if all nodes are failing, we will pick the temporarily failing node with lowest latency
 	if minLatency < maximumNodeLatency && closestNode != nil {
-		internal.Logger.Printf(context.TODO(), "redis: all nodes are marked as failed, picking the temporarily failing node with lowest latency")
+		pkg.Logger.Printf(context.TODO(), "redis: all nodes are marked as failed, picking the temporarily failing node with lowest latency")
 		return closestNode, nil
 	}
 
 	// If all nodes are having the maximum latency(all pings are failing) - return a random node across the cluster
-	internal.Logger.Printf(context.TODO(), "redis: pings to all nodes are failing, picking a random node across the cluster")
+	pkg.Logger.Printf(context.TODO(), "redis: pings to all nodes are failing, picking a random node across the cluster")
 	return c.nodes.Random()
 }
 
@@ -974,7 +974,7 @@ func (c *ClusterClient) process(ctx context.Context, cmd Cmder) error {
 		// MOVED and ASK responses are not transient errors that require retry delay; they
 		// should be attempted immediately.
 		if attempt > 0 && !moved && !ask {
-			if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+			if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 				return err
 			}
 		}
@@ -1278,7 +1278,7 @@ func (c *ClusterClient) processPipeline(ctx context.Context, cmds []Cmder) error
 
 	for attempt := 0; attempt <= c.opt.MaxRedirects; attempt++ {
 		if attempt > 0 {
-			if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+			if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 				setCmdsErr(cmds, err)
 				return err
 			}
@@ -1493,7 +1493,7 @@ func (c *ClusterClient) processTxPipeline(ctx context.Context, cmds []Cmder) err
 		cmdsMap := map[*clusterNode][]Cmder{node: cmds}
 		for attempt := 0; attempt <= c.opt.MaxRedirects; attempt++ {
 			if attempt > 0 {
-				if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+				if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 					setCmdsErr(cmds, err)
 					return err
 				}
@@ -1672,7 +1672,7 @@ func (c *ClusterClient) Watch(ctx context.Context, fn func(*Tx) error, keys ...s
 
 	for attempt := 0; attempt <= c.opt.MaxRedirects; attempt++ {
 		if attempt > 0 {
-			if err := internal.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
+			if err := pkg.Sleep(ctx, c.retryBackoff(attempt)); err != nil {
 				return err
 			}
 		}
@@ -1783,7 +1783,7 @@ func (c *ClusterClient) SSubscribe(ctx context.Context, channels ...string) *Pub
 }
 
 func (c *ClusterClient) retryBackoff(attempt int) time.Duration {
-	return internal.RetryBackoff(attempt, c.opt.MinRetryBackoff, c.opt.MaxRetryBackoff)
+	return pkg.RetryBackoff(attempt, c.opt.MinRetryBackoff, c.opt.MaxRetryBackoff)
 }
 
 func (c *ClusterClient) cmdsInfo(ctx context.Context) (map[string]*CommandInfo, error) {
@@ -1831,13 +1831,13 @@ func (c *ClusterClient) cmdsInfo(ctx context.Context) (map[string]*CommandInfo, 
 func (c *ClusterClient) cmdInfo(ctx context.Context, name string) *CommandInfo {
 	cmdsInfo, err := c.cmdsInfoCache.Get(ctx)
 	if err != nil {
-		internal.Logger.Printf(context.TODO(), "getting command info: %s", err)
+		pkg.Logger.Printf(context.TODO(), "getting command info: %s", err)
 		return nil
 	}
 
 	info := cmdsInfo[name]
 	if info == nil {
-		internal.Logger.Printf(context.TODO(), "info for cmd=%s not found", name)
+		pkg.Logger.Printf(context.TODO(), "info for cmd=%s not found", name)
 	}
 	return info
 }

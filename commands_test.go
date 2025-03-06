@@ -11,8 +11,8 @@ import (
 	. "github.com/bsm/ginkgo/v2"
 	. "github.com/bsm/gomega"
 
-	"github.com/redis/go-redis/v9"
-	"github.com/redis/go-redis/v9/internal/proto"
+	"github.com/viebiz/redis"
+	"github.com/viebiz/redis/pkg/proto"
 )
 
 type TimeValue struct {
@@ -2658,7 +2658,6 @@ var _ = Describe("Commands", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(res).To(Equal([]int64{1, 1, -2}))
 		})
-
 
 		It("should HPExpire", Label("hash-expiration", "NonRedisEnterprise"), func() {
 			SkipBeforeRedisVersion(7.4, "doesn't work with older redis stack images")
